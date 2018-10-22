@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+echo "$0 - $*"
+
+exit 0

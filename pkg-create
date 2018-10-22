@@ -1,0 +1,86 @@
+#!/bin/bash -e
+#
+# perform the following to generate an Raspbian Package for OpenSync example
+#
+# 1. Retrieve information about the source code, build number, ...
+# 2. Prepare staging area
+# 3. Post-process cfg files depending on build-type
+# 4. Create .deb file
+#
+# example usage from core dir
+#   WORKDIR=work/OSYNC_REF/ BINDIR=work/OSYNC_REF/rootfs/usr/plume/bin LIBDIR=work/OSYNC_REF/rootfs/usr/plume/lib/ TOOLSDIR=work/OSYNC_REF/rootfs/usr/plume/tools/ ./platform/osync_ref/pkg-create
+
+
+YELLOW="[33;1m"
+GREEN="[32;1m"
+BOLD="[1;1m"
+NONE="[0;0m"
+
+APP_NAME=$(basename $0)
+APP_DIR=$(dirname $(readlink -f $0))
+
+PKG_NAME="osync_ref"
+
+TARGET_DIR="/usr/plume"
+
+function usage()
+{
+    echo "Usage: WORKDIR=... BINDIR=... LIBDIR=... TOOLSDIR=... ${APP_NAME}"
+    exit 1
+}
+
+[ -n "$WORKDIR" ] || usage
+[ -n "$BINDIR"  ] || usage
+[ -n "$LIBDIR"  ] || usage
+[ -n "$TOOLSDIR"  ] || usage
+
+
+BUILD_USERNAME=$(id -n -u)
+BUILD_HOSTNAME=$(hostname)
+BUILD_DATE=$(date +%Y%m%d)
+
+VERSION_STRING=$BUILD_DATE-$(VERSION_NO_PROFILE=1 src/lib/version/version-gen make)
+
+#DIST_NAME=$(if [ -e /etc/os-release ]; then . /etc/os-release; echo $ID$VERSION_ID; fi)
+DIST_NAME="Raspbian9"
+
+# Prepare staging area
+STAGING_DIR="$WORKDIR/osyncref-package"
+mkdir -p "$STAGING_DIR"
+echo -n -e " ${YELLOW}stage${NONE}   [${BOLD}${PKG_NAME}${NONE}] ${STAGING_DIR} ... "
+
+# create directory structure
+BUILD_TARGET_DIR=${STAGING_DIR}${TARGET_DIR}
+mkdir -p ${BUILD_TARGET_DIR}
+mkdir -p ${BUILD_TARGET_DIR}/bin
+mkdir -p ${BUILD_TARGET_DIR}/lib
+PKG_ARCH="armhf"
+
+cp -r $BINDIR         ${BUILD_TARGET_DIR}
+cp -r $LIBDIR         ${BUILD_TARGET_DIR}
+cp -r $TOOLSDIR       ${BUILD_TARGET_DIR}
+
+# copy control file
+cp -a "${APP_DIR}/DEBIAN" "${STAGING_DIR}"
+# Post-process cfg files depending on build-type
+sed -i "s?PKG_VERSION_STRING?${VERSION_STRING}?g" "${STAGING_DIR}/DEBIAN/control"
+sed -i "s?PKG_ARCH?${PKG_ARCH}?g" "${STAGING_DIR}/DEBIAN/control"
+echo "done."
+
+# 6. Create .deb file
+# The Debian binary package file names conform to the following convention:
+# <foo>_<VersionNumber>-<DebianRevisionNumber>_<DebianArchitecture>.deb
+PKG_FILENAME="${WORKDIR}/${PKG_NAME}_${VERSION_STRING}-${DIST_NAME}_${PKG_ARCH}.deb"
+
+echo -e " ${GREEN}dpkg-deb${NONE}[${BOLD}${PKG_NAME}${NONE}] ${PKG_FILENAME}"
+if [ -n "${V}" ]; then 
+    dpkg -b ${STAGING_DIR} "$PKG_FILENAME"
+else
+    dpkg -b ${STAGING_DIR} "$PKG_FILENAME" >/dev/null
+fi
+
+if [ -z "${PKG_CREATE_DEBUG}" ]
+then
+    rm -rf $BUILD_STAGING_DIR
+fi
+

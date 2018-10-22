@@ -1,0 +1,9 @@
+Package: osync-ref
+Version: PKG_VERSION_STRING
+Priority: optional
+Section: misc
+Architecture: PKG_ARCH
+Maintainer: OpenSync <info@opensync.io>
+Provides: osync-ref
+Depends: libc-ares2, libev4, libjansson4, libmosquitto1, libprotobuf-c1, libssl1.1
+Description: Osync reference
