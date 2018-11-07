@@ -1,0 +1,14 @@
+#!/bin/bash 
+
+echo "$0 - $*"
+
+echo "Preinstall script"
+
+#Stop ovsdb
+kill $(ps -ef | grep ovsdb-server | awk '{print $2}') > /dev/null 2>&1
+
+#Stop plume managers
+kill $(ps -ef | grep /usr/plume/bin | awk '{print $2}') > /dev/null 2>&1
+
+
+exit 0

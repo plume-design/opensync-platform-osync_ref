@@ -2,4 +2,10 @@
 
 echo "$0 - $*"
 
+echo "Postinstall script"
+
+cp /usr/plume/etc/conf.db.bck /etc/openvswitch/conf.db
+
+/etc/init.d/osync_managers start
+
 exit 0

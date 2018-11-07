@@ -25,5 +25,19 @@
             "mtu": 1500,
             "NAT": false
        }
+    },
+    {
+        "op":"insert",
+        "table":"Wifi_Inet_Config",
+        "row": {
+            "if_name": "br0",
+            "ip_assign_scheme": "none",
+            "if_type": "bridge",
+            "enabled": true,
+            "network": true,
+            "mtu": 1500,
+            "NAT": false
+       }
+        
     }
 ]

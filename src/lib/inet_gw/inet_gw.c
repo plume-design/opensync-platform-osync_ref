@@ -173,20 +173,15 @@ static bool inet_state_refresh(
         struct inet *nif,
         struct schema_Wifi_Inet_State *state)
 {
-    //Hardcoded sample data
-    STRSCPY(state->inet_addr, "192.168.1.12");
+   /* Hardcoded sample data */
+    STRSCPY(state->inet_addr, "213.250.20.88");
     state->inet_addr_exists = true;
-
-    STRSCPY(state->netmask, "255.255.255.0");
-    state->netmask_exists = true;
-
-    STRSCPY(state->broadcast, "192.168.1.255");
-    state->broadcast_exists = true;
 
     state->mtu = 1500;
     state->mtu_exists = true;
 
-    state->enabled = false;
+    state->enabled = true;
+
 
     return true;
 }
@@ -194,7 +189,7 @@ static bool inet_state_refresh(
 
 /**
  * Periodic timer for Inet status update
- */
+ *///
 static void inet_state_periodic(
         struct ev_loop *loop,
         ev_timer *w,

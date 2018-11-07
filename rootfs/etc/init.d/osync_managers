@@ -1,0 +1,63 @@
+#!/bin/sh 
+# Copyright (C) 2015 Mitja Horvat mitja@plumewifi.com
+# Copyright (C) 2015 Mladen Barjaktarevic mladen@plumewifi.com
+
+### BEGIN INIT INFO
+# Provides:          osync_managers
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Osync managers
+# Description:       Starts osync managers.
+#		     Starts ovsdb-server
+### END INIT INFO
+
+
+START=15
+#STOP=
+
+SERVICE_DAEMONIZE=1
+SERVICE_WRITE_PID=1
+SERVICE_USE_PID=1
+
+NAME=osync-managers
+PIDCOUNT=0
+
+do_start() {
+	echo 'Start ovsdb'
+
+	# copy pre-populated db conf.db
+	cp /usr/plume/etc/conf.db.bck /etc/openvswitch/conf.db
+    if [ ! -d /var/run/openvswitch ]; then
+    	mkdir /var/run/openvswitch
+    fi
+
+	# ovsdb-server
+	ovsdb-server /etc/openvswitch/conf.db -vconsole:emer -vsyslog:err -vfile:info --remote=punix:/var/run/db.sock --remote=db:Open_vSwitch,Open_vSwitch,manager_options --private-key=db:Open_vSwitch,SSL,private_key --certificate=db:Open_vSwitch,SSL,certificate --ca-cert=db:Open_vSwitch,SSL,ca_cert --no-chdir --log-file=/var/log/openvswitch/ovsdb-server.log --pidfile=/var/run/openvswitch/ovsdb-server.pid --detach --monitor &
+
+	echo 'Start osync'
+	/usr/plume/bin/dm > /dev/null 2>&1 &
+
+}
+
+do_stop() {
+	echo 'stop'
+	# ovsdb-server
+	kill $(cat /var/run/openvswitch/ovsdb-server.pid)
+}
+
+
+
+case "$1" in
+  start)	  
+        do_start
+  ;;
+  stop)
+        do_stop
+	;;
+
+esac
+
+:
+

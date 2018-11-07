@@ -43,6 +43,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 typedef struct
 {
     DPP_TARGET_CLIENT_RECORD_COMMON_STRUCT;
+    dpp_client_stats_t  stats;
+
 } target_client_record_t;
 
 typedef struct

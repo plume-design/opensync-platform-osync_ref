@@ -35,6 +35,19 @@ KCONFIGTARGET?= $(PLATFORM_DIR)/kconfig/targets/$(TARGET)
 
 TARGET_MAKEFILE = $(PLATFORM_DIR)/Makefile
 
+ROOTFS_SOURCE_DIRS += $(PLATFORM_DIR)/rootfs
 
+OSYNCETCDIR=$(WORKDIR)/rootfs/usr/plume/etc
+ROOTETCDIR=$(WORKDIR)/rootfs/etc
+TOOLSDIR=$(WORKDIR)/rootfs/usr/plume/tools
+
+PKG_ENV = $(VERSION_ENV) WORKDIR=$(WORKDIR) BINDIR=$(BINDIR) LIBDIR=$(LIBDIR) OSYNCETCDIR=$(OSYNCETCDIR) ROOTETCDIR=$(ROOTETCDIR) TOOLSDIR=$(TOOLSDIR) V=$(V)
+
+.PHONY: deb-package
+deb-package: all rootfs
+	$(Q) cp -r $(PLATFORM_DIR)/rootfs/etc $(WORKDIR)/rootfs
+	$(info Make deb paket)
+	$(Q) $(PKG_ENV) $(PLATFORM_DIR)/pkg-create
+	
 endif #OSYNC_REF
 

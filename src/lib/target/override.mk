@@ -27,7 +27,9 @@ UNIT_CFLAGS  += -I$(OVERRIDE_DIR)/inc
 
 
 UNIT_EXPORT_CFLAGS := $(UNIT_CFLAGS)
+
 UNIT_SRC_TOP := $(OVERRIDE_DIR)/target_stats.c
+UNIT_SRC_TOP += $(OVERRIDE_DIR)/target_radio.c
 
 UNIT_SRC := $(filter-out src/target_inet.c,$(UNIT_SRC))
 UNIT_SRC := $(filter-out src/target_mac_learn.c,$(UNIT_SRC))

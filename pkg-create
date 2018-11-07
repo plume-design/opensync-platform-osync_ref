@@ -6,9 +6,6 @@
 # 2. Prepare staging area
 # 3. Post-process cfg files depending on build-type
 # 4. Create .deb file
-#
-# example usage from core dir
-#   WORKDIR=work/OSYNC_REF/ BINDIR=work/OSYNC_REF/rootfs/usr/plume/bin LIBDIR=work/OSYNC_REF/rootfs/usr/plume/lib/ TOOLSDIR=work/OSYNC_REF/rootfs/usr/plume/tools/ ./platform/osync_ref/pkg-create
 
 
 YELLOW="[33;1m"
@@ -19,20 +16,22 @@ NONE="[0;0m"
 APP_NAME=$(basename $0)
 APP_DIR=$(dirname $(readlink -f $0))
 
-PKG_NAME="osync_ref"
+PKG_NAME="osync-ref"
 
 TARGET_DIR="/usr/plume"
 
 function usage()
 {
-    echo "Usage: WORKDIR=... BINDIR=... LIBDIR=... TOOLSDIR=... ${APP_NAME}"
+    echo "Usage: WORKDIR=... BINDIR=... LIBDIR=... OSYNCETCDIR=... ROOTETCDIR=... TOOLSDIR=... ${APP_NAME}"
     exit 1
 }
 
-[ -n "$WORKDIR" ] || usage
-[ -n "$BINDIR"  ] || usage
-[ -n "$LIBDIR"  ] || usage
-[ -n "$TOOLSDIR"  ] || usage
+[ -n "$WORKDIR" ]      || usage
+[ -n "$BINDIR" ]       || usage
+[ -n "$LIBDIR" ]       || usage
+[ -n "$TOOLSDIR" ]     || usage
+[ -n "$OSYNCETCDIR" ]  || usage
+[ -n "$ROOTETCDIR" ]   || usage
 
 
 BUILD_USERNAME=$(id -n -u)
@@ -41,7 +40,6 @@ BUILD_DATE=$(date +%Y%m%d)
 
 VERSION_STRING=$BUILD_DATE-$(VERSION_NO_PROFILE=1 src/lib/version/version-gen make)
 
-#DIST_NAME=$(if [ -e /etc/os-release ]; then . /etc/os-release; echo $ID$VERSION_ID; fi)
 DIST_NAME="Raspbian9"
 
 # Prepare staging area
@@ -50,15 +48,23 @@ mkdir -p "$STAGING_DIR"
 echo -n -e " ${YELLOW}stage${NONE}   [${BOLD}${PKG_NAME}${NONE}] ${STAGING_DIR} ... "
 
 # create directory structure
+
+
 BUILD_TARGET_DIR=${STAGING_DIR}${TARGET_DIR}
 mkdir -p ${BUILD_TARGET_DIR}
 mkdir -p ${BUILD_TARGET_DIR}/bin
 mkdir -p ${BUILD_TARGET_DIR}/lib
+mkdir -p ${BUILD_TARGET_DIR}/etc
+mkdir -p ${BUILD_TARGET_DIR}/tools
+
 PKG_ARCH="armhf"
 
-cp -r $BINDIR         ${BUILD_TARGET_DIR}
-cp -r $LIBDIR         ${BUILD_TARGET_DIR}
-cp -r $TOOLSDIR       ${BUILD_TARGET_DIR}
+cp -r $BINDIR      ${BUILD_TARGET_DIR}
+cp -r $LIBDIR      ${BUILD_TARGET_DIR}
+cp -r $TOOLSDIR    ${BUILD_TARGET_DIR}
+cp -r $OSYNCETCDIR ${BUILD_TARGET_DIR}
+
+cp -r $ROOTETCDIR $STAGING_DIR
 
 # copy control file
 cp -a "${APP_DIR}/DEBIAN" "${STAGING_DIR}"
